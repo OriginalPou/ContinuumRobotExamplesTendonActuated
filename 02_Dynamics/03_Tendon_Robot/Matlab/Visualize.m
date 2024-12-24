@@ -1,18 +1,21 @@
 %plot 3d tendonRobot
 %
-function [] = Visualize(centerline,tendonlines,num_tendons, disks,num_disks)
-L=0.8;
+function [] = Visualize(centerline,tendonlines,num_tendons, disks,num_disks, motor_traj_1, motor_traj_2, t, tSteps)
+subplot(2,2,[2,4]);
+L=0.1;
 p1=plot3(centerline(1,:),centerline(2,:),centerline(3,:));
 p1.LineWidth=3;
 p1.Color='b';
 
-axis([-0.3*L 0.3*L  -0.3*L 0.3*L 0 1.05*L]);
+axis([-0.5*L 0.5*L  -0.5*L 0.5*L 0 1.05*L]);
 title('');  xlabel('x (m)');  ylabel('y (m)');  zlabel('z (m)');
-daspect([1 1 1]); %Lock aspect ratio
+daspect([0.1 0.1 0.1]); %Lock aspect ratio
 hold on;
 
 %plot tendons%
+
 for j = 1 : num_tendons
+    
     plot3(tendonlines(3*j-2, :),tendonlines(3*j-2+1,:)...
         ,tendonlines(3*j,:),'Color','#000000','LineWidth', ...
         1);
@@ -24,7 +27,7 @@ for i = 1 : num_disks
     P=disks(1:3, 4*i);
     u1=P+R*[0;0;-0.001/2];
     u2=P+R*[0;0;0.001/2];
-    [cycleX,cycleY,cycleZ] = myCylinder(u1,u2,0.025);
+    [cycleX,cycleY,cycleZ] = myCylinder(u1,u2,0.006);
     plot3(cycleX(1,:),cycleY(1,:),cycleZ(1,:),'black');
     %fill3(cycleX(1,:),cycleY(1,:),cycleZ(1,:),'yellow') %bottom
     %fill3(cycleX(2,:),cycleY(2,:),cycleZ(2,:),'yellow') %top
@@ -32,8 +35,22 @@ for i = 1 : num_disks
 
 end
 grid on;  drawnow;
-%pause(0.05);
 hold off;
+subplot(2,2,1);
+plot(tSteps, motor_traj_1, 'LineWidth',1);
+xline(t, 'LineWidth',2);
+xlabel ('time(s)');
+ylabel('Displacement (rad)');
+title('Displacement of Actuator 1');
+subplot(2,2,3);
+plot(tSteps, motor_traj_2, 'LineWidth',1, Color="red");
+xline(t, 'LineWidth',2);
+xlabel ('time(s)');
+ylabel('Displacement (rad)');
+title('Displacement of Actuator 2');
+%pause(0.05);
+%f = gcf;
+%exportgraphics(f,['data/frames/frame' num2str(round(t/(tSteps(2)-tSteps(1)))) '.png'],'Resolution',300)
 
 %% function
     function [X,Y,Z] = myCylinder(u1,u2,r)
